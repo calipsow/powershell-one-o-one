@@ -107,7 +107,7 @@ _Description:_ Retrieves a list of installed programs and exports it to a CSV fi
 ### **8. Monitor a file for changes in real time**
 
 ```powershell
-$Datei = 'C:\Pfad\zur\Ihrer\Datei.txt'
+$Datei = 'C:\Path\to\your\File.txt'
 Get-Content $Datei -Wait
 ```
 
