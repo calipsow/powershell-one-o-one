@@ -160,6 +160,42 @@ Test-NetConnection -ComputerName RemoteHostName -Port 80
 
 _Description:_ Tests the connectivity to a remote host on a specific port (e.g. port 80).
 
+### **11. Find hidden Registry Entries**
+
+```powershell
+# Function to detect registry keys with non-printable characters in their names
+function Get-NonPrintableRegistryKeys {
+    param (
+        [string]$KeyPath
+    )
+
+    try {
+        $subKeys = Get-ChildItem -Path $KeyPath -ErrorAction Stop
+
+        foreach ($subKey in $subKeys) {
+            # Check if the key name contains non-printable characters
+            if ($subKey.PSChildName -match '[^\x20-\x7E]') {
+                Write-Output "Key with non-printable characters: $($subKey.PSPath)"
+            }
+            # Recursively call the function for each subkey
+            Get-NonPrintableRegistryKeys -KeyPath $subKey.PSPath
+        }
+    }
+    catch {
+        # Handle exceptions if necessary
+    }
+}
+
+# Start scanning from the root hives
+$rootHives = @("HKLM:\", "HKU:\")
+
+foreach ($hive in $rootHives) {
+    Get-NonPrintableRegistryKeys -KeyPath $hive
+}
+```
+
+_Description:_ If you worry your system could be infected, one trace malware can leave are hidden registry entries, this pwsh script tries to find those
+
 ---
 
 ### To view running PowerShell processes, you can use the `Get-Process` cmdlet to get a list of all active processes. You can filter specifically for PowerShell processes by searching for the process name "powershell" or "pwsh" (for PowerShell Core). Here are some ways you can do this
