@@ -100,6 +100,32 @@ Select-Object DisplayName, DisplayVersion, Publisher, InstallDate |
 Export-Csv -Path "InstallierteProgramme.csv" -NoTypeInformation
 ```
 
+### **8. Retrieve all Autostart Files from the Registry**
+
+```powershell
+# usefull whenever you want to check which 
+# files are autostart when you starting your windows machine
+$paths = @(
+    'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run',
+    'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce',
+    'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run',
+    'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon',
+    'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run',
+    'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\RunOnce',
+    'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run',
+    'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce',
+    'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run'
+)
+
+foreach ($path in $paths) {
+    if (Test-Path $path) {
+        Write-Host "`nEinträge in $path`n" -ForegroundColor Green
+        Get-ItemProperty -Path $path | Select-Object *
+    }
+}
+```
+
+
 _Description:_ Retrieves a list of installed programs and exports it to a CSV file called "InstalledPrograms.csv".
 
 ---
