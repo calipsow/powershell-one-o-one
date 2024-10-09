@@ -100,6 +100,9 @@ Select-Object DisplayName, DisplayVersion, Publisher, InstallDate |
 Export-Csv -Path "InstallierteProgramme.csv" -NoTypeInformation
 ```
 
+_Description:_ Retrieves a list of installed programs and exports it to a CSV file called "InstalledPrograms.csv".
+
+
 ### **8. Retrieve all Autostart Files from the Registry**
 
 ```powershell
@@ -126,11 +129,9 @@ foreach ($path in $paths) {
 ```
 
 
-_Description:_ Retrieves a list of installed programs and exports it to a CSV file called "InstalledPrograms.csv".
-
 ---
 
-### **8. Monitor a file for changes in real time**
+### **9. Monitor a file for changes in real time**
 
 ```powershell
 $Datei = 'C:\Path\to\your\File.txt'
@@ -141,7 +142,7 @@ _Description:_ Displays the contents of a file and updates in real time as soon 
 
 ---
 
-### **9. Back up a directory and exclude certain file types**
+### **10. Back up a directory and exclude certain file types**
 
 ```powershell
 robocopy "C:\Quelle" "D:\Backup" /E /XD *.tmp *.log
@@ -161,7 +162,7 @@ _Description:_ Tests the connectivity to a remote host on a specific port (e.g. 
 
 ---
 
-## To view running PowerShell processes, you can use the `Get-Process` cmdlet to get a list of all active processes. You can filter specifically for PowerShell processes by searching for the process name "powershell" or "pwsh" (for PowerShell Core). Here are some ways you can do this
+### To view running PowerShell processes, you can use the `Get-Process` cmdlet to get a list of all active processes. You can filter specifically for PowerShell processes by searching for the process name "powershell" or "pwsh" (for PowerShell Core). Here are some ways you can do this
 
 1. **Show all processes**:
 
