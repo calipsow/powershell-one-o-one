@@ -38,7 +38,7 @@ PowerShell is a powerful scripting language and command-line shell designed espe
 
 Alternatively, you can download the repository as a ZIP file from GitHub and extract it locally.
 
-Personal Recommendation is installing [Powershell 7.4](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.4) it brings a lot of handy extras.
+### Recommended is using [Powershell 7.4](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.4) which adds handy extra features.
 
 **For this Guide you need to have or install [winget](https://learn.microsoft.com/en-us/windows/package-manager/winget)**
 
