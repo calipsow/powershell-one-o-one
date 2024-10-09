@@ -119,7 +119,7 @@ $paths = @(
 
 foreach ($path in $paths) {
     if (Test-Path $path) {
-        Write-Host "`nEinträge in $path`n" -ForegroundColor Green
+        Write-Host "`nEntries in $path`n" -ForegroundColor Green
         Get-ItemProperty -Path $path | Select-Object *
     }
 }
