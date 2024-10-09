@@ -38,6 +38,31 @@ PowerShell is a powerful scripting language and command-line shell designed espe
 
 Alternatively, you can download the repository as a ZIP file from GitHub and extract it locally.
 
+Personal Recommendation is installing [Powershell 7.4](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.4) it brings a lot of handy extras.
+
+**For this Guide you need to have or install [winget](https://learn.microsoft.com/en-us/windows/package-manager/winget)**
+
+```powershell
+# Search for the latest pwsh version
+winget search Microsoft.PowerShell
+```
+
+_Output_: 
+
+```markdown
+Name               Id                           Version   Source
+-----------------------------------------------------------------
+PowerShell         Microsoft.PowerShell         7.4.5.0   winget
+PowerShell Preview Microsoft.PowerShell.Preview 7.5.0.3   winget
+```
+
+```powershell
+# install the latest pwsh version via winget
+
+winget install --id Microsoft.PowerShell --source winget
+winget install --id Microsoft.PowerShell.Preview --source winget
+```
+
 ## Basic Commands
 
 Here are a few basic but powerful PowerShell commands you’ll find in this repository:
