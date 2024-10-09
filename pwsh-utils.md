@@ -13,7 +13,7 @@
 ## Copy and edit this variable, its used in the commands as parameter
 
 ```powershell
-set $SEARCH_STR=""
+Set-Variable -Name "SEARCH_STR" -Value "YourSearchString"
 ```
 
 ### **1. Find all files on all available drives that have a specific string in their name**
