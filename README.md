@@ -4,7 +4,7 @@ A comprehensive list of powerful and useful PowerShell commands for daily use an
 
 ## Jump right into:
 
-- [**My Favorit Powershell Utils**](/pwsh-utils.md)
+- [**My Favorite Utils**](/pwsh-utils.md)
 - [Basic Commands](#basic-commands)
 - [Automation Snippets](#automation-examples)
 - [Useful Stuff](#useful-snippets)
