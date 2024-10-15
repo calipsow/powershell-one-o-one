@@ -134,8 +134,8 @@ foreach ($path in $paths) {
 ### **9. Monitor a file for changes in real time**
 
 ```powershell
-$Datei = 'C:\Path\to\your\File.txt'
-Get-Content $Datei -Wait
+Set-Variable -Name "File" -Value "C:\Your\File.txt"
+Get-Content $File -Wait
 ```
 
 _Description:_ Displays the contents of a file and updates in real time as soon as changes are made.
