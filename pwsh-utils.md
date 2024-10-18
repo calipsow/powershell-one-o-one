@@ -145,7 +145,7 @@ _Description:_ Displays the contents of a file and updates in real time as soon 
 ### **10. Back up a directory and exclude certain file types**
 
 ```powershell
-robocopy "C:\Quelle" "D:\Backup" /E /XD *.tmp *.log
+robocopy "C:\Source" "D:\Backup" /E /XD *.tmp *.log
 ```
 
 _Description:_ Copies all files and subdirectories from `C:\Source` to `D:\Backup`, but excludes files with the extensions `.tmp` and `.log`.
