@@ -267,3 +267,93 @@ Get-Process -Name $SEARCH_STR | ForEach-Object {
     Write-Host "Stopped process with PID $($_.Id)"
 }
 ```
+
+### Open Your Favorit Websites all at once
+
+```powershell
+$urls = @("https://www.example1.com", "https://www.example2.com")
+foreach ($url in $urls) {
+    Start-Process "chrome.exe" $url
+}
+```
+
+### Extract zip Archieve 
+
+```powershell
+Expand-Archive -Path "C:\Archive\Files.zip" -DestinationPath "C:\Extracted"
+```
+
+### Compress Files into ZIP 
+
+```powershell
+Compress-Archive -Path "C:\Files\*" -DestinationPath "C:\Archive\Files.zip"
+```
+
+### Batch Rename File matching Pattern 
+
+```powershell
+Get-ChildItem *.txt | Rename-Item -NewName {$_.Name -Replace 'old','new'}
+```
+
+### Compute a File Hash 
+
+```powershell
+Get-FileHash -Path "C:\path\to\file.exe" -Algorithm SHA256
+```
+
+### Automate and Schedule Tasks
+
+```powershell
+$Action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-File 'C:\Scripts\YourScript.ps1'"
+$Trigger = New-ScheduledTaskTrigger -Daily -At 9AM
+Register-ScheduledTask -Action $Action -Trigger $Trigger -TaskName "DailyScriptRun" -Description "Runs a script daily at 9 AM"
+```
+
+### Check Recursively File hashes on VT
+
+```powershell
+$ApiKey = "YOUR_VIRUSTOTAL_API_KEY"
+$Files = Get-ChildItem -Path "C:\Path\To\Scan" -Recurse -File
+foreach ($File in $Files) {
+    $Hash = (Get-FileHash -Algorithm SHA256 -Path $File.FullName).Hash
+    $Response = Invoke-RestMethod -Uri "https://www.virustotal.com/api/v3/files/$Hash" -Headers @{ "x-apikey" = $ApiKey }
+    Write-Output "$($File.FullName): $($Response.data.attributes.last_analysis_stats)"
+}
+```
+
+### Display open Network Connections
+
+```powershell
+Get-NetTCPConnection | Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, State
+```
+
+### Enable / Disable Windows Service
+
+```powershell
+# To disable a service
+Set-Service -Name "ServiceName" -StartupType Disabled
+
+# To enable a service
+Set-Service -Name "ServiceName" -StartupType Automatic
+```
+
+### Backup The Registry 
+
+```powershell
+reg export HKLM\Software "C:\Backup\SoftwareRegistryBackup.reg" /y
+```
+
+### Display Env Variables
+
+```powershell
+Get-ChildItem Env:
+```
+
+### Create hidden Folder
+
+```powershell
+attrib +h "C:\Path\To\FileOrFolder"
+```
+
+
+
