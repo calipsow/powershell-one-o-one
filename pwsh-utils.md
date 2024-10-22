@@ -349,7 +349,7 @@ reg export HKLM\Software "C:\Backup\SoftwareRegistryBackup.reg" /y
 Get-ChildItem Env:
 ```
 
-### Create hidden Folder
+### Hide Folders or Files
 
 ```powershell
 attrib +h "C:\Path\To\FileOrFolder"
