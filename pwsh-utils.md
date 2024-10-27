@@ -62,8 +62,9 @@ _description:_ This command searches all directories under `C:\` recursively for
 
 ```powershell
 Get-ChildItem -Path 'C:\' -Recurse -Directory -ErrorAction SilentlyContinue -Force |
-Where-Object { @(Get-ChildItem $_.FullName -Force -ErrorAction SilentlyContinue).Count -eq 0 } |
-Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
+Where-Object { 
+ @(Get-ChildItem $_.FullName -Force -ErrorAction SilentlyContinue).Count -eq 0 
+} | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
 ```
 
 _description:_ This command finds all empty directories under `C:\` and deletes them. Errors are handled silently.
