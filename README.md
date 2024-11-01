@@ -92,7 +92,7 @@ Here are a few basic but powerful PowerShell commands you’ll find in this repo
 
 ## Automation Examples
 
-- **Automating File Backup:**
+**Automating File Backup:**
 
   ```powershell
   $source = "C:\path\to\source"
@@ -100,13 +100,13 @@ Here are a few basic but powerful PowerShell commands you’ll find in this repo
   Copy-Item -Path $source -Destination $destination -Recurse
   ```
 
-- **Scheduled Task Creation:**
+**Scheduled Task Creation:**
 
-  ```powershell
-  $action = New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument '-File C:\path\to\script.ps1'
-  $trigger = New-ScheduledTaskTrigger -Daily -At 6AM
-  Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "DailyScriptRun"
-  ```
+```powershell
+$tsk = New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument '-File C:\script.ps1'
+$trgr = New-ScheduledTaskTrigger -Daily -At 6AM
+Register-ScheduledTask -Action $tsk -Trigger $trgr -TaskName "DailyTask"
+```
 
 ## Useful Snippets
 
