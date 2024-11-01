@@ -103,7 +103,8 @@ Here are a few basic but powerful PowerShell commands you’ll find in this repo
 **Scheduled Task Creation:**
 
 ```powershell
-$tsk = New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument '-File C:\script.ps1'
+$scrpt='-File C:\path\to\script.ps1'
+$tsk = New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument $scrpt
 $trgr = New-ScheduledTaskTrigger -Daily -At 6AM
 Register-ScheduledTask -Action $tsk -Trigger $trgr -TaskName "DailyTask"
 ```
