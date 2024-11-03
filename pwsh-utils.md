@@ -975,18 +975,26 @@ while ($true) {
     *Checks the SSL certificate expiry date for a given hostname.*
 
 20. **Generate a System Audit Report (Full Script)**
-    ```powershell
-    $report = @{
-        "ComputerName" = $env:COMPUTERNAME
-        "OSVersion" = (Get-CimInstance Win32_OperatingSystem).Version
-        "InstalledApplications" = Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* |
-            Select-Object DisplayName, DisplayVersion
-        "RunningServices" = Get-Service | Where-Object {$_.Status -eq "Running"} | Select-Object Name, DisplayName
-    }
-    $report | ConvertTo-Json | Out-File -FilePath "C:\Reports\SystemAudit_$(Get-Date -Format yyyyMMdd).json"
-    Write-Host "System audit report generated at C:\Reports\SystemAudit_$(Get-Date -Format yyyyMMdd).json"
-    ```
-    *Generates a comprehensive system audit report and saves it as a JSON file.*
+
+```powershell
+$hive="HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*"
+$report = @{
+    "ComputerName" = $env:COMPUTERNAME
+    "OSVersion" = (
+        Get-CimInstance Win32_OperatingSystem
+    ).Version
+    
+    "InstalledApplications" = Get-ItemProperty $hive |
+        Select-Object DisplayName, DisplayVersion
+    
+    "RunningServices" = Get-Service | 
+        Where-Object {$_.Status -eq "Running"} | 
+        Select-Object Name, DisplayName
+}
+$report | ConvertTo-Json | Out-File -FilePath "C:\SysAudits\$(Get-Date -Format yyyyMMdd).json"
+Write-Host "System audit report generated at C:\SysAudits\$(Get-Date -Format yyyyMMdd).json"
+```
+*Generates a comprehensive system audit report and saves it as a JSON file.*
 
 
 ### Advanced Scripts Part 4
