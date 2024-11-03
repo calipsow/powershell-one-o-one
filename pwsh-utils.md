@@ -822,7 +822,16 @@ while ($true) {
 
 7. **List Open Network Ports and Processes**
    ```powershell
-   Get-NetTCPConnection | Select-Object LocalAddress, LocalPort, State, @{Name="ProcessName";Expression={(Get-Process -Id $_.OwningProcess).ProcessName}}
+   ## List Open Network Ports and Processes
+   Get-NetTCPConnection | Select-Object LocalAddress, RemoteAddress, LocalPort, State, @{
+    	Name="Process"; Expression={
+    		(Get-Process -Id $_.OwningProcess).ProcessName
+    	}
+   }, @{
+    	Name="P-ID"; Expression={
+    		(Get-Process -Id $_.OwningProcess).Id
+    	}
+   }
    ```
    *Displays all TCP connections with associated processes.*
 
