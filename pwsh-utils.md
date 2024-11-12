@@ -960,11 +960,16 @@ while ($true) {
 
 19. **Check SSL Certificate Expiry Date**
     ```powershell
+    ## Check SSL Certificate Expiry Date
     $hostname = "example.com"
     $port = 443
-    $client = New-Object System.Net.Sockets.TcpClient($hostname, $port)
+    $client = New-Object System.Net.Sockets.TcpClient(
+        $hostname, $port
+    )
     $stream = $client.GetStream()
-    $sslStream = New-Object System.Net.Security.SslStream($stream, $false, ({$true}))
+    $sslStream = New-Object System.Net.Security.SslStream(
+        $stream, $false, ({$true})
+    )
     $sslStream.AuthenticateAsClient($hostname)
     $cert = $sslStream.RemoteCertificate
     $sslStream.Dispose()
