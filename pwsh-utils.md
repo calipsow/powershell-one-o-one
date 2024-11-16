@@ -1051,7 +1051,9 @@ Write-Host "System audit report generated at C:\SysAudits\$(Get-Date -Format yyy
 
 8. **Download a File from the Internet**
    ```powershell
-   Invoke-WebRequest -Uri "https://example.com/file.zip" -OutFile "C:\Downloads\file.zip"
+   $SrcURI="https://example.com/file.zip"
+   $OutFile="C:\Downloads\file.zip"
+   Invoke-WebRequest -Uri $SrcURI -OutFile $OutFile
    ```
    *Downloads a file from a URL to a specified directory.*
 
