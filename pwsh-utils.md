@@ -1110,7 +1110,11 @@ Write-Host "System audit report generated at C:\SysAudits\$(Get-Date -Format yyy
 
 17. **Set an Environment Variable**
     ```powershell
-    [Environment]::SetEnvironmentVariable("VariableName", "Value", "User")
+    [Environment]::SetEnvironmentVariable(
+        "VariableName", 
+        "Value", 
+        "User"
+    )
     ```
     *Sets a user-level environment variable.*
 
