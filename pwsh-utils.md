@@ -670,7 +670,10 @@ while ($true) {
 11. **Check for Orphaned Services and Remove Them**
 
     ```powershell
-    $services = Get-WmiObject win32_service | Where-Object { $_.State -eq 'Stopped' -and $_.StartMode -eq 'Disabled' }
+    $services = Get-WmiObject win32_service | 
+    Where-Object { 
+        $_.State -eq 'Stopped' -and $_.StartMode -eq 'Disabled' 
+    }
     foreach ($service in $services) {
         Write-Host "Removing service: $($service.Name)"
         sc.exe delete $service.Name
