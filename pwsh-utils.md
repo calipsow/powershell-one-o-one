@@ -402,18 +402,20 @@ This script retrieves a list of installed software, checks for available updates
 ```powershell
 # Ensure Winget is installed
 if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
- Write-Error "Please install Winget: https://github.com/microsoft/winget-cli/releases"
+ Write-Error "Install Winget: https://github.com/microsoft/winget-cli/releases"
  exit
 }
 
 # Get list of upgradable packages via Winget
-$updates = winget upgrade --accept-source-agreements --accept-package-agreements | 
+$updates = winget upgrade --accept-source-agreements 
+--accept-package-agreements | 
 Select-Object -Skip 2 | 
 ConvertFrom-Csv -Header "Name","Id","Version","Available","Source"
 
 foreach ($package in $updates) {
  Write-Host "Updating $($package.Name) to Version $($package.Available)"
- winget upgrade --id $package.Id --accept-source-agreements --accept-package-agreements --silent
+ winget upgrade --id $package.Id --accept-source-agreements 
+ --accept-package-agreements --silent
 }
 ```
 
