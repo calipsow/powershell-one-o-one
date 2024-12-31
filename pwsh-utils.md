@@ -42,11 +42,11 @@ _description:_ This command searches all files under `C:\` for those that contai
 
 ---
 
-### **3. Alle Verzeichnisse rekursiv finden, die einen bestimmten String im Namen haben**
+### **3. Recursively find all directories that have a specific string in their name**
 
 ```powershell
-Get-ChildItem -Path 'C:\' -Recurse -Directory -ErrorAction SilentlyContinue -Force |
-Where-Object { $_.Name -like "*$SEARCH_STR*" } |
+Get-ChildItem -Path 'C:\' -Recurse -Directory -ErrorAction SilentlyContinue
+-Force | Where-Object { $_.Name -like "*$SEARCH_STR*" } |
 Select-Object FullName
 ```
 
