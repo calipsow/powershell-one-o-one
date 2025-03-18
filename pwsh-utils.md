@@ -1294,8 +1294,10 @@ $honeypot = "C:\Fake_Data\passwords.txt"
 $watcher = New-Object System.IO.FileSystemWatcher
 $watcher.Path = (Split-Path $honeypot)
 Register-ObjectEvent $watcher "Changed" -Action {
-  if ($Event.SourceEventArgs.Name -eq (Split-Path $honeypot -Leaf)) {
-    Write-Host "Honeypot accessed by: $(Get-Process -Id $Event.SourceEventArgs.ProcessId)"
+  if($Event.SourceEventArgs.Name -eq (Split-Path $honeypot -Leaf)){
+    Write-Host "Honeypot accessed by: $(
+      Get-Process -Id $Event.SourceEventArgs.ProcessId
+    )"
   }
 }
 ```
