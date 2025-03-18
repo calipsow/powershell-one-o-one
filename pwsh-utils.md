@@ -30,7 +30,7 @@ _description:_ This command searches all file system drives for files whose name
 
 ---
 
-### **2. find all files that have a specific string in their content**
+### **Find all files that have a specific string in their content**
 
 ```powershell
 Get-ChildItem -Path 'C:\' -Recurse -File -ErrorAction SilentlyContinue -Force |
