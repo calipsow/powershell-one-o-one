@@ -1144,4 +1144,44 @@ Write-Host "System audit report generated at C:\SysAudits\$(Get-Date -Format yyy
     ```
     *Searches the PowerShell Gallery for modules matching a pattern.*
 
+21. **Check open Ports**
+    ```powershell
+    Get-NetTCPConnection | Where-Object { 
+        $_.State -eq 'Listen' 
+    } | Select LocalAddress, LocalPort
+    ```
+    
+22. **Create new User Account**
+    ```powershell
+    $username = "JohnDoe"
+    $password = ConvertTo-SecureString "P@ssw0rd!" -AsPlainText -Force
+    New-LocalUser -Name $username -Password $password -FullName "John Doe" -Description "Test User"
+    Add-LocalGroupMember -Group "Users" -Member $username
+    ```
 
+23. **Clean Temp Files**
+    ```powershell
+    Remove-Item -Path "$env:TEMP\*", 
+    "$env:SystemRoot\Prefetch\*", 
+    "$env:LOCALAPPDATA\Temp\*" -Recurse -Force -Confirm
+    ```
+    
+24. **Get System Infos**
+    ```powershell
+    Get-ComputerInfo | Select-OSVersion, 
+        BiosVersion, 
+        CsUserName, 
+        CsTotalPhysicalMemory
+    Write-Host "Last Boot Time: $(
+        Get-Date -Date (
+            Get-CimInstance -ClassName Win32_OperatingSystem
+        ).LastBootUpTime
+    )"
+    ```
+    
+24. **Check Battery Health**
+    ```powershell
+    Get-CimInstance -ClassName Win32_Battery | 
+    Select BatteryStatus, EstimatedChargeRemaining, EstimatedRunTime
+    ```
+    
