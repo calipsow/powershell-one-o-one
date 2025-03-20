@@ -1407,10 +1407,13 @@ Select-String -Path "C:\Logs\access.log" -Pattern "('|--|;)|(<script>|alert\(|on
 ### **20. Block TOR Exit Nodes**  
 *Automatically block TOR IPs:*  
 ```powershell
-$torIPs = (Invoke-RestMethod "https://check.torproject.org/exit-addresses").split("`n") | 
-  Where-Object { $_ -match "^ExitAddress" } | 
-  ForEach-Object { $_.split()[1] }
-$torIPs | ForEach-Object { New-NetFirewallRule -DisplayName "Block TOR $_" -RemoteAddress $_ -Action Block }
+$torIPs = (
+  Invoke-RestMethod "https://check.torproject.org/exit-addresses"
+).split("`n") | Where-Object { $_ -match "^ExitAddress" } | ForEach-Object { 
+  $_.split()[1] 
+} $torIPs | ForEach-Object { 
+  New-NetFirewallRule -DisplayName "Block TOR $_" -RemoteAddress $_ -Action Block 
+}
 ```
 
 ---
