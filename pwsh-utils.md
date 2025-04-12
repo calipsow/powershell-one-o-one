@@ -84,9 +84,12 @@ _Description:_ Displays the top 10 processes that consume the most memory.
 ### **6. Find all large files over a certain size (e.g. over 100MB)**
 
 ```powershell
-Get-ChildItem -Path 'C:\' -Recurse -File -ErrorAction SilentlyContinue -Force |
+$P="C:\"
+Get-ChildItem -Path $P -Recurse -File -ErrorAction SilentlyContinue -Force |
 Where-Object { $_.Length -gt 100MB } |
-Select-Object FullName, @{Name="SizeMB";Expression={$_.Length / 1MB -as [int]}}
+Select-Object FullName, @{
+    Name="SizeMB"; Expression={$_.Length / 1MB -as [int]}
+}
 ```
 
 _Description:_ Searches for files over 100MB under `C:\` and lists their paths and sizes in MB.
