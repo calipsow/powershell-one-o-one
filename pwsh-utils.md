@@ -1427,4 +1427,7 @@ $torIPs = (
 - Test in a safe environment before deployment.  
 - Adjust paths, IPs, and thresholds based on your environment.  
 
-
+If you run this in an elevated shell, you won’t have to confirm updates that require admin privileges
+```powershell
+winget upgrade -r 
+```
