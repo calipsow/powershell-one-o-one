@@ -1442,33 +1442,33 @@ Here are 10 practical PowerShell scripts categorized into Cybersecurity, Softwar
 🛡 Cybersecurity Scripts
 
 1. Scan for Suspicious Running Processes
-
+```powershell
 Get-Process | Where-Object {
     $_.Path -and !(Test-Path $_.Path)
 } | Select-Object Name, Id, Path
-
+```
 Detects processes with missing executables — could indicate malicious injection or deleted malware.
 
 2. Check for Open Network Ports
-
+```powershell
 Get-NetTCPConnection | Where-Object { $_.State -eq 'Listen' } |
 Select-Object LocalAddress, LocalPort, OwningProcess |
 Sort-Object LocalPort
-
+```
 Quickly identify listening ports and correlate them with owning processes for auditing.
 
 3. List Users with Admin Privileges
-
+```powershell
 Get-LocalGroupMember -Group "Administrators" | Select-Object Name, ObjectClass
-
+```
 Useful for detecting privilege escalations or unauthorized admin accounts.
 
 4. Audit User Login History
-
+```powershell
 Get-EventLog -LogName Security -InstanceId 4624 -Newest 100 |
 Select-Object TimeGenerated, ReplacementStrings |
 Format-Table -Wrap
-
+```
 Lists successful login events (Event ID 4624), including IPs and usernames.
 
 ⸻
@@ -1476,30 +1476,30 @@ Lists successful login events (Event ID 4624), including IPs and usernames.
 💻 Software Development (Dev Scripts)
 
 5. Start a Local Web Server for Frontend Testing
-
+```powershell
 $port = 8080
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd $pwd; python -m http.server $port"
-
+```
 Launches a local Python web server for static file previewing — helpful in JS/React dev.
 
 6. Auto Format and Lint All JS Files
-
+```powershell
 Get-ChildItem -Recurse -Filter *.js | ForEach-Object {
     Write-Output "Linting $_.FullName"
     npx prettier --write $_.FullName
 }
-
+```
 Automate formatting with Prettier over a large JS codebase.
 
 7. Git Status of All Repos in a Directory
-
+```powershell
 Get-ChildItem -Directory | Where-Object {
     Test-Path "$($_.FullName)\.git"
 } | ForEach-Object {
     Write-Output "Repo: $($_.Name)"
     git -C $_.FullName status
 }
-
+```
 Quickly check the git status across multiple repositories.
 
 ⸻
@@ -1507,24 +1507,232 @@ Quickly check the git status across multiple repositories.
 🖥 Sys Admin Automation
 
 8. Disk Space Report for All Drives
-
+```powershell
 Get-PSDrive -PSProvider FileSystem | Select-Object Name, @{Name="FreeGB"; Expression={[math]::Round($_.Free/1GB,2)}}, @{Name="UsedGB"; Expression={[math]::Round(($_.Used)/1GB,2)}}
-
+```
 Displays disk usage and free space — useful for storage alerts.
 
 9. Backup a Directory to ZIP with Timestamp
-
+```powershell
 $src = "C:\Projects"
 $dest = "C:\Backups\Projects_$(Get-Date -Format 'yyyyMMdd_HHmm').zip"
 Compress-Archive -Path $src -DestinationPath $dest
-
+```
 Easily archive a dev project or configuration folder.
 
 10. Install Common Dev Tools (winget)
-
+```powershell
 $apps = @("Git.Git", "Microsoft.VisualStudioCode", "Python.Python.3", "Nodejs.Node")
 foreach ($app in $apps) {
     winget install --id $app -e --accept-package-agreements --accept-source-agreements
 }
-
+```
 Set up a dev environment from scratch using Windows Package Manager.
+
+Here are 20 more powerful and practical PowerShell scripts across Cybersecurity, Software Development, and System Administration. These are battle-tested utilities ideal for developers, sysadmins, and security-conscious users.
+
+⸻
+
+🛡 CYBERSECURITY (7 Scripts)
+
+1. Find Recently Created User Accounts
+```powershell
+Get-LocalUser | Where-Object {
+    $_.WhenCreated -gt (Get-Date).AddDays(-7)
+} | Select-Object Name, Enabled, WhenCreated
+```
+Detect potential rogue accounts added in the past week.
+
+⸻
+
+2. Detect Users with Passwords Set to Never Expire
+```powershell
+Search-ADAccount -PasswordNeverExpires | Select-Object Name, Enabled, LastLogonDate
+```
+Common misconfiguration and a privilege escalation vector.
+
+⸻
+
+3. Monitor Real-Time Process Creation
+```powershell
+Register-WmiEvent -Query "SELECT * FROM Win32_ProcessStartTrace" -Action {
+    Write-Host "Process started: $($Event.SourceEventArgs.NewEvent.ProcessName)"
+}
+```
+Use this to catch suspicious activity (basic EDR behavior).
+
+⸻
+
+4. Dump All Installed Certificates
+```powershell
+Get-ChildItem -Path Cert:\LocalMachine\My | Format-List Subject, NotAfter, Thumbprint
+```
+Useful for checking expired/malicious certs.
+
+⸻
+
+5. List All Scheduled Tasks
+```powershell
+Get-ScheduledTask | Select-Object TaskName, TaskPath, State, Author
+```
+Attackers often hide payloads as scheduled tasks.
+
+⸻
+
+6. List All Outbound Connections
+```powershell
+Get-NetTCPConnection -State Established | Select-Object RemoteAddress, RemotePort, OwningProcess
+```
+Great for spotting unwanted beaconing traffic.
+
+⸻
+
+7. Export Windows Defender Threat History
+```powershell
+Get-MpThreatDetection | Export-Csv -Path "$env:USERPROFILE\defender_log.csv" -NoTypeInformation
+```
+Use this to automate AV logging to your SIEM or local analysis.
+
+⸻
+
+💻 SOFTWARE DEVELOPMENT (7 Scripts)
+
+8. Watch a Directory and Auto-Compile TS/JS
+```powershell
+$watchPath = "C:\MyApp"
+Register-ObjectEvent -InputObject (New-Object IO.FileSystemWatcher $watchPath -Property @{IncludeSubdirectories=$true;EnableRaisingEvents=$true}) -EventName "Changed" -Action {
+    Write-Host "Change detected, running build..."
+    npm run build
+}
+```
+Hot-reload trigger for local development.
+
+⸻
+
+9. Create a Git Commit with Timestamp
+```powershell
+git add .
+$timestamp = Get-Date -Format "yyyy-MM-dd HH:mm"
+git commit -m "Auto commit at $timestamp"
+```
+For auto-syncing projects via cron or scheduler.
+
+⸻
+
+10. Convert JSON Config to ENV Format
+```powershell
+$json = Get-Content ".\config.json" | ConvertFrom-Json
+$json.PSObject.Properties | ForEach-Object {
+    "$($_.Name.ToUpper())=$($_.Value)" >> .env
+}
+```
+Converts API config into .env format for backend apps.
+
+⸻
+
+11. Get Line Counts for All Code Files
+```powershell
+Get-ChildItem -Recurse -Include *.js,*.ts,*.py,*.jsx,*.tsx | 
+    Get-Content | Measure-Object -Line
+```
+Fast LOC audit across projects.
+
+⸻
+
+12. Check All Repos for Unpushed Commits
+```powershell
+$repos = Get-ChildItem -Directory
+foreach ($repo in $repos) {
+    Set-Location $repo.FullName
+    git fetch
+    $status = git status -sb
+    if ($status -notmatch 'up to date') {
+        Write-Host "$($repo.Name) has unpushed commits"
+    }
+    Set-Location ..
+}
+```
+Quickly audit team projects.
+
+⸻
+
+13. Remove Node Modules Recursively
+```powershell
+Get-ChildItem -Recurse -Directory -Force -Include "node_modules" |
+ForEach-Object {
+    Remove-Item -Force -Recurse -Path $_.FullName
+}
+```
+Cleans up space across your system or monorepos.
+
+⸻
+
+14. Auto Bump Package Version
+```powershell
+$package = Get-Content package.json | ConvertFrom-Json
+$parts = $package.version -split '\.'
+$parts[2] = ([int]$parts[2]) + 1
+$package.version = ($parts -join '.')
+$package | ConvertTo-Json -Depth 10 | Set-Content package.json
+```
+Useful for automated deployments or pre-commit hooks.
+
+⸻
+
+🖥 SYSTEM ADMIN (6 Scripts)
+
+15. Create a New Local Admin User
+```powershell
+$pw = Read-Host "Enter Password" -AsSecureString
+New-LocalUser "devadmin" -Password $pw -FullName "Dev Admin" -Description "Temporary admin"
+Add-LocalGroupMember -Group "Administrators" -Member "devadmin"
+```
+Temporary account creation for test environments.
+
+⸻
+
+16. Disable Telemetry and Tracking Services
+```powershell
+$services = "DiagTrack", "dmwappushsvc"
+foreach ($s in $services) {
+    Stop-Service -Name $s -Force
+    Set-Service -Name $s -StartupType Disabled
+}
+```
+Reduce attack surface and telemetry noise.
+
+⸻
+
+17. Restart Services by Pattern
+```powershell
+Get-Service | Where-Object { $_.DisplayName -like "*SQL*" } | Restart-Service
+```
+Useful for rebooting a dev environment or DB stack.
+
+⸻
+
+18. List Auto-Start Programs
+```powershell
+Get-CimInstance -ClassName Win32_StartupCommand |
+Select-Object Name, Command, Location
+```
+Detect bloatware or persistence mechanisms.
+
+⸻
+
+19. Log All USB Device Inserts
+```powershell
+Get-WinEvent -FilterHashtable @{LogName='System'; ID=20001} |
+Select-Object TimeCreated, Message
+```
+Monitor potential data exfiltration or physical attacks.
+
+⸻
+
+20. Set System DNS to Cloudflare
+```powershell
+Set-DnsClientServerAddress -InterfaceAlias "Wi-Fi" -ServerAddresses ("1.1.1.1","1.0.0.1")
+```
+Enforce fast, privacy-focused DNS on client machines.
+
+
