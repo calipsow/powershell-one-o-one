@@ -1433,3 +1433,98 @@ If you run this in an elevated shell, you won’t have to confirm updates that r
 ```powershell
 winget upgrade -r 
 ```
+
+
+Here are 10 practical PowerShell scripts categorized into Cybersecurity, Software Development, and System Administration — all aimed to help you automate, audit, or manage tasks effectively.
+
+⸻
+
+🛡 Cybersecurity Scripts
+
+1. Scan for Suspicious Running Processes
+
+Get-Process | Where-Object {
+    $_.Path -and !(Test-Path $_.Path)
+} | Select-Object Name, Id, Path
+
+Detects processes with missing executables — could indicate malicious injection or deleted malware.
+
+2. Check for Open Network Ports
+
+Get-NetTCPConnection | Where-Object { $_.State -eq 'Listen' } |
+Select-Object LocalAddress, LocalPort, OwningProcess |
+Sort-Object LocalPort
+
+Quickly identify listening ports and correlate them with owning processes for auditing.
+
+3. List Users with Admin Privileges
+
+Get-LocalGroupMember -Group "Administrators" | Select-Object Name, ObjectClass
+
+Useful for detecting privilege escalations or unauthorized admin accounts.
+
+4. Audit User Login History
+
+Get-EventLog -LogName Security -InstanceId 4624 -Newest 100 |
+Select-Object TimeGenerated, ReplacementStrings |
+Format-Table -Wrap
+
+Lists successful login events (Event ID 4624), including IPs and usernames.
+
+⸻
+
+💻 Software Development (Dev Scripts)
+
+5. Start a Local Web Server for Frontend Testing
+
+$port = 8080
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd $pwd; python -m http.server $port"
+
+Launches a local Python web server for static file previewing — helpful in JS/React dev.
+
+6. Auto Format and Lint All JS Files
+
+Get-ChildItem -Recurse -Filter *.js | ForEach-Object {
+    Write-Output "Linting $_.FullName"
+    npx prettier --write $_.FullName
+}
+
+Automate formatting with Prettier over a large JS codebase.
+
+7. Git Status of All Repos in a Directory
+
+Get-ChildItem -Directory | Where-Object {
+    Test-Path "$($_.FullName)\.git"
+} | ForEach-Object {
+    Write-Output "Repo: $($_.Name)"
+    git -C $_.FullName status
+}
+
+Quickly check the git status across multiple repositories.
+
+⸻
+
+🖥 Sys Admin Automation
+
+8. Disk Space Report for All Drives
+
+Get-PSDrive -PSProvider FileSystem | Select-Object Name, @{Name="FreeGB"; Expression={[math]::Round($_.Free/1GB,2)}}, @{Name="UsedGB"; Expression={[math]::Round(($_.Used)/1GB,2)}}
+
+Displays disk usage and free space — useful for storage alerts.
+
+9. Backup a Directory to ZIP with Timestamp
+
+$src = "C:\Projects"
+$dest = "C:\Backups\Projects_$(Get-Date -Format 'yyyyMMdd_HHmm').zip"
+Compress-Archive -Path $src -DestinationPath $dest
+
+Easily archive a dev project or configuration folder.
+
+10. Install Common Dev Tools (winget)
+
+$apps = @("Git.Git", "Microsoft.VisualStudioCode", "Python.Python.3", "Nodejs.Node")
+foreach ($app in $apps) {
+    winget install --id $app -e --accept-package-agreements --accept-source-agreements
+}
+
+Set up a dev environment from scratch using Windows Package Manager.
