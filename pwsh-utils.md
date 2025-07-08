@@ -1563,7 +1563,7 @@ Use this to catch suspicious activity (basic EDR behavior).
 
 ⸻
 
-4. Dump All Installed Certificates
+Dump All Installed Certificates
 ```powershell
 Get-ChildItem -Path Cert:\LocalMachine\My \
 | Format-List Subject, NotAfter, Thumbprint
