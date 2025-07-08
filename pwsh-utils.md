@@ -1657,14 +1657,14 @@ Quickly audit team projects.
 
 ⸻
 
-13. Remove Node Modules Recursively
+Nuke Node Modules
 ```powershell
 Get-ChildItem -Recurse -Directory -Force -Include "node_modules" |
 ForEach-Object {
     Remove-Item -Force -Recurse -Path $_.FullName
 }
 ```
-Cleans up space across your system or monorepos.
+Force Removes Node Modules across your system.
 
 ⸻
 
