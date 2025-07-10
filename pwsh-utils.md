@@ -1736,4 +1736,146 @@ Set-DnsClientServerAddress -InterfaceAlias "Wi-Fi" -ServerAddresses ("1.1.1.1","
 ```
 Enforce fast, privacy-focused DNS on client machines.
 
+## List All Autostart Scripts, Apps etc from Registry
+
+```powershell
+Write-Host "`n=========== AUTOSTART ENTRIES ===========`n"
+
+# --- Registry Autostart Entries ---
+$registryPaths = @(
+    "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run",
+    "HKLM:\Software\Microsoft\Windows\CurrentVersion\Run",
+    "HKCU:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Run",
+    "HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Run"
+)
+
+foreach ($path in $registryPaths) {
+    if (Test-Path $path) {
+        Write-Host "`n[Registry] $path" -ForegroundColor Cyan
+        Get-ItemProperty -Path $path | ForEach-Object {
+            $_.PSObject.Properties | Where-Object {
+                $_.Name -notlike "PS*"
+            } | ForEach-Object {
+                Write-Host "  $($_.Name): $($_.Value)"
+            }
+        }
+    }
+}
+
+# --- Startup Folder Entries ---
+$startupFolders = @(
+    "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup",      # Current User
+    "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\Startup"   # All Users
+)
+
+foreach ($folder in $startupFolders) {
+    if (Test-Path $folder) {
+        Write-Host "`n[Startup Folder] $folder" -ForegroundColor Yellow
+        Get-ChildItem $folder -Filter *.lnk | ForEach-Object {
+            Write-Host "  $($_.Name)"
+        }
+    }
+}
+
+# --- Scheduled Tasks ---
+Write-Host "`n[Scheduled Tasks] (User-level tasks only)" -ForegroundColor Green
+Get-ScheduledTask | Where-Object {
+    $_.TaskPath -like "\*" -and $_.Principal.UserId -ne "SYSTEM"
+} | ForEach-Object {
+    Write-Host "  $($_.TaskName) (Path: $($_.TaskPath.Trim()))"
+}
+
+# --- Services ---
+Write-Host "`n[Windows Services] (Auto-start only)" -ForegroundColor Magenta
+Get-Service | Where-Object { $_.StartType -eq 'Automatic' } | ForEach-Object {
+    Write-Host "  $($_.Name): $($_.DisplayName)"
+}
+
+Write-Host "`n=========================================`n"
+```
+
+## Remove Any Autostart Entry from Registry
+
+```powershell
+param(
+    [Parameter(Mandatory = $true)]
+    [ValidateSet("Registry", "StartupFolder", "ScheduledTask", "Service")]
+    [string]$Type,
+
+    [Parameter(Mandatory = $true)]
+    [string]$Identifier,
+
+    [string]$RegistryPath # Required only for Registry type
+)
+
+switch ($Type) {
+    "Registry" {
+        if (-not $RegistryPath) {
+            Write-Host "Error: You must specify -RegistryPath for Registry removal." -ForegroundColor Red
+            exit 1
+        }
+        if (Test-Path $RegistryPath) {
+            try {
+                Remove-ItemProperty -Path $RegistryPath -Name $Identifier -ErrorAction Stop
+                Write-Host "✔ Removed registry entry '$Identifier' from $RegistryPath" -ForegroundColor Green
+            } catch {
+                Write-Host "✖ Failed to remove registry entry: $_" -ForegroundColor Red
+            }
+        } else {
+            Write-Host "✖ Registry path not found: $RegistryPath" -ForegroundColor Yellow
+        }
+    }
+
+    "StartupFolder" {
+        $paths = @(
+            "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\$Identifier",
+            "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\Startup\$Identifier"
+        )
+        foreach ($path in $paths) {
+            if (Test-Path $path) {
+                Remove-Item $path -Force
+                Write-Host "✔ Removed startup shortcut: $path" -ForegroundColor Green
+            }
+        }
+    }
+
+    "ScheduledTask" {
+        try {
+            Unregister-ScheduledTask -TaskName $Identifier -Confirm:$false -ErrorAction Stop
+            Write-Host "✔ Scheduled task '$Identifier' removed." -ForegroundColor Green
+        } catch {
+            Write-Host "✖ Could not remove scheduled task: $_" -ForegroundColor Red
+        }
+    }
+
+    "Service" {
+        try {
+            Set-Service -Name $Identifier -StartupType Disabled -ErrorAction Stop
+            Stop-Service -Name $Identifier -Force -ErrorAction SilentlyContinue
+            Write-Host "✔ Disabled and stopped service: $Identifier" -ForegroundColor Green
+        } catch {
+            Write-Host "✖ Could not disable/stop service: $_" -ForegroundColor Red
+        }
+    }
+}
+```
+
+## How to Use:
+Create an script with the .ps1 extention and paste the script
+above into it. Then you can use it as follows:
+
+```bash
+# Remove a registry autostart entry
+.\Remove-Autostart.ps1 -Type Registry -Identifier "MyApp" -RegistryPath "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run"
+
+# Remove a startup folder shortcut
+.\Remove-Autostart.ps1 -Type StartupFolder -Identifier "MyApp.lnk"
+
+# Remove a scheduled task
+.\Remove-Autostart.ps1 -Type ScheduledTask -Identifier "MyDailyTask"
+
+# Disable and stop a service
+.\Remove-Autostart.ps1 -Type Service -Identifier "MyServiceName"
+```
+
 
