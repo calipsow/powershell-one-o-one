@@ -1878,4 +1878,115 @@ above into it. Then you can use it as follows:
 .\Remove-Autostart.ps1 -Type Service -Identifier "MyServiceName"
 ```
 
+# TODO: Make repo for bash!
+
+## Make Script Executable and Run It
+	
+1.	Save script as block_tor_ips.sh
+
+2. Make it executable
+
+```bash
+chmod +x block_tor_ips.sh
+```
+
+3.	Run with elevated privileges:
+```bash
+sudo ./block_tor_ips.sh
+```
+
+```bash
+#!/bin/bash
+
+# This script blocks Tor exit nodes on macOS using pf
+
+set -euo pipefail
+
+# Create a unique temp file for IP list
+TOR_IP_LIST=$(mktemp /tmp/tor_exit_ips.XXXXXX)
+PF_CONF_ANCHOR="/etc/pf.anchors/block_tor_ips"
+PF_RULE_LABEL="block_tor_ips"
+
+# Cleanup function
+cleanup() {
+    [[ -f "$TOR_IP_LIST" ]] && rm -f "$TOR_IP_LIST"
+}
+trap cleanup EXIT
+
+# Set secure PATH for cron compatibility
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+# Backup existing anchor file if found
+if [[ -f "$PF_CONF_ANCHOR" ]]; then
+    echo "Existing anchor file found, backing up..."
+    sudo cp "$PF_CONF_ANCHOR" "$PF_CONF_ANCHOR.backup.$(date +%s)"
+fi
+
+# Fetch the Tor exit node list with retries and timeout
+echo "Fetching Tor exit node list..."
+if ! curl -s --max-time 30 --retry 3 --retry-delay 5 \
+    "https://check.torproject.org/exit-addresses" | \
+    grep "^ExitAddress" | \
+    awk '{print "block drop from " $2 " to any"}' > "$TOR_IP_LIST"; then
+    echo "Failed to fetch Tor exit node list"
+    logger -t tor_blocker "Failed to fetch exit node list"
+    exit 1
+fi
+
+# Check if any rules were retrieved
+if [[ ! -s "$TOR_IP_LIST" ]]; then
+    echo "Error: No Tor exit nodes found in the downloaded list"
+    logger -t tor_blocker "No exit nodes found in downloaded list"
+    exit 1
+fi
+
+# Log rule count
+RULE_COUNT=$(wc -l < "$TOR_IP_LIST")
+echo "Retrieved $RULE_COUNT Tor exit node rules"
+logger -t tor_blocker "Retrieved $RULE_COUNT Tor exit node rules"
+
+# Move rule list into the anchor file
+sudo mv "$TOR_IP_LIST" "$PF_CONF_ANCHOR"
+
+# Add anchor and load command to pf.conf if not already present
+if ! grep -q "anchor \"$PF_RULE_LABEL\"" "/etc/pf.conf"; then
+    echo "Adding anchor to /etc/pf.conf..."
+    logger -t tor_blocker "Adding new anchor to pf.conf"
+    sudo tee -a /etc/pf.conf > /dev/null <<EOF
+anchor "$PF_RULE_LABEL"
+load anchor "$PF_RULE_LABEL" from "$PF_CONF_ANCHOR"
+EOF
+else
+    echo "Anchor already exists in pf.conf"
+fi
+
+# Validate pf.conf before applying
+echo "Validating pf configuration..."
+if ! sudo pfctl -nf /etc/pf.conf; then
+    echo "Error: pf.conf contains syntax errors"
+    logger -t tor_blocker "pf.conf validation failed"
+    exit 1
+fi
+
+# Reload pf rules
+echo "Reloading pf rules..."
+sudo pfctl -f /etc/pf.conf
+
+# Enable pf if not already
+if ! sudo pfctl -e 2>/dev/null; then
+    echo "pf is already enabled or failed to enable"
+fi
+
+# Log completion
+TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+echo "Tor IPs blocked using pf. ($RULE_COUNT rules applied at $TIMESTAMP)"
+logger -t tor_blocker "Successfully applied $RULE_COUNT rules at $TIMESTAMP"
+
+echo "Script completed successfully."
+```
+
+
+
+
+
 
